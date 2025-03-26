@@ -353,12 +353,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function prepareGameStart() {
         hatInitialized = true;
         
-        // Create the start game button at the bottom
-        const startGameButton = document.getElementById('startButton');
-        if (startGameButton) {
-            startGameButton.disabled = false;
-            startGameButton.classList.add('pulse-animation');
-        }
+        // Instead of enabling the button, start the game automatically
+        setTimeout(() => {
+            startGame();
+            
+            // Update the start button to show "Restart" instead
+            const startGameButton = document.getElementById('startButton');
+            if (startGameButton) {
+                startGameButton.disabled = false;
+                startGameButton.textContent = 'Restart Game';
+                startGameButton.classList.add('pulse-animation');
+            }
+        }, 500); // Short delay before starting
     }
 
     function startGame() {
@@ -779,7 +785,19 @@ document.addEventListener('DOMContentLoaded', function() {
         startButton.disabled = true; // Disable until hats are ready
         
         startButton.addEventListener('click', () => {
-            if (!gameActive && hatInitialized) {
+            if (gameActive) {
+                // If game is active, this is a restart
+                clearTimeout(gameInterval);
+                gameActive = false;
+                window.gameAudio.stopBackgroundMusic();
+                
+                // Clear all existing hats
+                gameArea.innerHTML = '';
+                
+                // Reinitialize the game area
+                initializeGameArea();
+            } else if (hatInitialized) {
+                // Normal start if hats are initialized but game isn't active
                 startGame();
             }
         });
