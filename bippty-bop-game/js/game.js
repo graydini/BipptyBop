@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const gameArea = document.getElementById('gameArea');
     const scoreDisplay = document.getElementById('score');
     const livesDisplay = document.getElementById('lives');
+    const highScoreDisplay = document.getElementById('high-score');
     
     // Check if elements exist before proceeding
     if (!gameArea) {
@@ -21,6 +22,28 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastHatPosition = null;
     let lives = 5; // Starting lives
     let hatInitialized = false;
+    let highScore = localStorage.getItem('bipptyBopHighScore') || 0; // Get high score from localStorage
+
+    // Display initial high score
+    updateHighScoreDisplay();
+    
+    // Function to update the high score display
+    function updateHighScoreDisplay() {
+        if (highScoreDisplay) {
+            highScoreDisplay.textContent = `High Score: ${highScore}`;
+        }
+    }
+    
+    // Function to check and update high score if needed
+    function checkHighScore() {
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('bipptyBopHighScore', highScore);
+            updateHighScoreDisplay();
+            return true; // Return true if it's a new high score
+        }
+        return false; // Return false if it's not a new high score
+    }
 
     // Define hat positions
     const hatPositions = [
@@ -516,10 +539,18 @@ document.addEventListener('DOMContentLoaded', function() {
             mouseContainer.classList.add('mouse-pop-active');
             
             mouse.addEventListener('click', (event) => {
+                // Check if mouse is already stunned to prevent multiple clicks
+                if (mouse.classList.contains('stun-animation')) {
+                    return;  // Exit early if already stunned
+                }
+                
                 // Play hit sound (swapped - now the thud sound)
                 window.gameAudio.playHitSound();
                 score++;
                 scoreDisplay.textContent = `Score: ${score}`;
+                
+                // Check if this is a new high score
+                checkHighScore();
                 
                 // Award extra life every 30 points
                 if (score % 30 === 0) {
@@ -534,6 +565,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 mouse.classList.remove('full-appearance');
                 mouse.classList.add('stun-animation');
                 
+                // Create swirling stars around mouse's head
+                createStunStars(mouse);
+                
                 // Wait for longer stun animation to finish before removing
                 setTimeout(() => {
                     if (mouseContainer.contains(mouse)) {
@@ -543,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Schedule next appearance after mouse disappears
                         scheduleNextMouse();
                     }
-                }, 1000); // Increased stun duration from 500ms to 1000ms
+                }, 1500); // Increased stun duration from 1000ms to 1500ms
             });
 
             // Set timeout based on appearance type
@@ -553,11 +587,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Play miss sound (swapped - now the ping sound)
                     window.gameAudio.playMissSound();
                     
-                    // Create starburst effect when mouse disappears
+                    // Create cartoon puff cloud effect when mouse disappears
                     const mouseRect = mouse.getBoundingClientRect();
                     const centerX = mouseRect.left + mouseRect.width / 2;
                     const centerY = mouseRect.top + mouseRect.height / 2;
-                    createStarburst(centerX, centerY);
+                    createCartoonPuff(centerX, centerY);
                     
                     // Only lose a life for full appearances, not teases
                     if (!isTeaseAppearance) {
@@ -705,48 +739,99 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Function to create a starburst effect at click location
-    function createStarburst(clientX, clientY) {
-        // Create a container for the starburst
-        const burstContainer = document.createElement('div');
-        burstContainer.className = 'starburst-container';
-        
-        // Position the container at the click location
-        const gameAreaRect = gameArea.getBoundingClientRect();
-        burstContainer.style.left = `${clientX - gameAreaRect.left}px`;
-        burstContainer.style.top = `${clientY - gameAreaRect.top}px`;
-        
-        // Create particles for starburst
-        const particleCount = 15;
-        for (let i = 0; i < particleCount; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'starburst-particle';
-            
-            // Calculate random angle and distance for this particle
-            const angle = (i / particleCount) * 360 + (Math.random() * 30 - 15);
-            const distance = 30 + Math.random() * 30;
-            
-            // Calculate x and y offsets
-            const xOffset = Math.cos(angle * Math.PI / 180) * distance;
-            const yOffset = Math.sin(angle * Math.PI / 180) * distance;
-            
-            // Set custom properties for animation
-            particle.style.setProperty('--x-offset', `${xOffset}px`);
-            particle.style.setProperty('--y-offset', `${yOffset}px`);
-            
-            // Add random animation delay
-            particle.style.animationDelay = `${Math.random() * 0.1}s`;
-            
-            burstContainer.appendChild(particle);
+    // Function to create swirling stars around stunned mouse's head
+    function createStunStars(mouse) {
+        // First, remove any existing stun stars to prevent duplicates
+        const existingStars = mouse.parentElement.querySelector('.stun-stars-container');
+        if (existingStars) {
+            mouse.parentElement.removeChild(existingStars);
         }
         
-        // Add the starburst to the game area
-        gameArea.appendChild(burstContainer);
+        const starsContainer = document.createElement('div');
+        starsContainer.className = 'stun-stars-container';
+        
+        // Create 5 stars at different angles
+        const totalStars = 5;
+        for (let i = 0; i < totalStars; i++) {
+            const star = document.createElement('div');
+            star.className = 'stun-star';
+            
+            // Position stars in a circle
+            const angle = (i / totalStars) * Math.PI * 2;
+            const radius = 25; // Distance from center
+            const x = Math.cos(angle) * radius + 40 - 6; // 40 is half of container width, 6 is half of star
+            const y = Math.sin(angle) * radius + 40 - 6; // Same for height
+            
+            star.style.left = `${x}px`;
+            star.style.top = `${y}px`;
+            
+            // Add random animation delay
+            star.style.animationDelay = `${i * 0.1}s`;
+            
+            starsContainer.appendChild(star);
+        }
+        
+        // Append the stars to the mouse's parent container
+        mouse.parentElement.appendChild(starsContainer);
         
         // Remove after animation completes
         setTimeout(() => {
-            if (gameArea.contains(burstContainer)) {
-                gameArea.removeChild(burstContainer);
+            if (mouse.parentElement && mouse.parentElement.contains(starsContainer)) {
+                mouse.parentElement.removeChild(starsContainer);
+            }
+        }, 1500);
+    }
+    
+    // Function to create a cartoon puff cloud when mouse disappears
+    function createCartoonPuff(clientX, clientY) {
+        // Create a container for the cartoon puff
+        const puffContainer = document.createElement('div');
+        puffContainer.className = 'smoke-puff-container';
+        
+        // Position the container at the location
+        const gameAreaRect = gameArea.getBoundingClientRect();
+        puffContainer.style.left = `${clientX - gameAreaRect.left}px`;
+        puffContainer.style.top = `${clientY - gameAreaRect.top}px`;
+        
+        // Create main puff
+        const mainPuff = document.createElement('div');
+        mainPuff.className = 'cartoon-puff';
+        puffContainer.appendChild(mainPuff);
+        
+        // Create smaller cloud bubbles around the main puff
+        const bubbleCount = 5;
+        for (let i = 0; i < bubbleCount; i++) {
+            const bubble = document.createElement('div');
+            bubble.className = 'cloud-bubble';
+            
+            // Calculate position around the main puff
+            const angle = (i / bubbleCount) * Math.PI * 2;
+            const distance = 30 + Math.random() * 15;
+            const xPos = Math.cos(angle) * distance;
+            const yPos = Math.sin(angle) * distance;
+            
+            // Set random size for variety
+            const size = 15 + Math.random() * 10;
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            
+            // Position the bubble
+            bubble.style.left = `calc(50% + ${xPos}px)`;
+            bubble.style.top = `calc(50% + ${yPos}px)`;
+            
+            // Random delay for bubble appearance
+            bubble.style.animationDelay = `${0.1 + i * 0.05}s`;
+            
+            puffContainer.appendChild(bubble);
+        }
+        
+        // Add the puff to the game area
+        gameArea.appendChild(puffContainer);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (gameArea.contains(puffContainer)) {
+                gameArea.removeChild(puffContainer);
             }
         }, 700);
     }
@@ -756,12 +841,24 @@ document.addEventListener('DOMContentLoaded', function() {
         gameActive = false;
         window.gameAudio.stopBackgroundMusic();
         
+        // Check for high score before showing game over message
+        const isNewHighScore = checkHighScore();
+        
         // Create game over message instead of alert
         const gameOverMsg = document.createElement('div');
         gameOverMsg.className = 'game-over-message';
+        
+        // Include high score message if it's a new high score
+        let highScoreMessage = '';
+        if (isNewHighScore) {
+            highScoreMessage = '<p class="new-high-score">New High Score!</p>';
+        }
+        
         gameOverMsg.innerHTML = `
             <h2>Game Over!</h2>
             <p>Your score: ${score}</p>
+            ${highScoreMessage}
+            <p>High score: ${highScore}</p>
             <button class="play-again-btn">Play Again</button>
         `;
         
