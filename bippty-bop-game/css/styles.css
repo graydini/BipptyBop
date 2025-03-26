@@ -1,0 +1,352 @@
+/* Body styling with royal purple gradient and star pattern */
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #4B0082, #8A2BE2, #9370DB);
+    background-attachment: fixed;
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Star pattern overlay for body */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 25% 30%, white 0.5px, transparent 1px),
+        radial-gradient(circle at 75% 60%, white 0.5px, transparent 1px),
+        radial-gradient(circle at 50% 20%, white 0.7px, transparent 1.4px),
+        radial-gradient(circle at 15% 80%, white 0.5px, transparent 1px),
+        radial-gradient(circle at 85% 15%, white 0.6px, transparent 1.2px);
+    background-size: 120px 120px;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+/* Game container */
+#gameContainer {
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Game title */
+h1 {
+    text-align: center;
+    color: #4B0082;
+    margin-top: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Game area styling */
+#gameArea {
+    width: 100%;
+    height: 500px; /* Increased height to accommodate two rows */
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    background: linear-gradient(to bottom, #1a365d, #2c5282); /* Darker blue gradient */
+    cursor: url('../assets/images/wand-cursor.png'), auto; /* Default magic wand cursor */
+}
+
+/* Stars container */
+.stars-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Behind everything */
+    pointer-events: none; /* Don't block clicks */
+}
+
+/* Individual star styling */
+.star {
+    position: absolute;
+    background-color: white;
+    clip-path: polygon(
+        50% 0%, 61% 35%, 98% 35%, 68% 57%, 
+        79% 91%, 50% 70%, 21% 91%, 32% 57%, 
+        2% 35%, 39% 35%
+    );
+    opacity: 0.7;
+    animation: twinkle 3s infinite ease-in-out;
+}
+
+/* Star twinkling animation */
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 0.9; transform: scale(1.1); }
+}
+
+/* Hat row styling */
+.hat-row {
+    width: 100%;
+    height: 50%; /* Each row takes half the game area height */
+    display: flex;
+    justify-content: space-around;
+    position: relative;
+    z-index: 1; /* Above stars */
+}
+
+/* Top hat styling */
+.top-hat {
+    position: relative;
+    width: 33.33%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 600px;
+}
+
+/* Hat container styling */
+.hat-container {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    transform-style: preserve-3d;
+    margin-top: 40px; /* Lower the hat position */
+}
+
+/* Hat back layer - lowest z-index */
+.hat-back-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none; /* Don't block mouse clicks */
+}
+
+/* Mouse container - should be above the hat front layer */
+.mouse-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20; /* Increase to be above hat back layer */
+    overflow: visible;
+}
+
+/* Hat front layer */
+.hat-front-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 30; /* Below mouse now */
+    pointer-events: none;
+}
+
+/* Hat SVG common styling */
+.hat-svg {
+    width: 180px;
+    height: 180px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none; /* SVGs don't block clicks by default */
+}
+
+/* Hat elements specific styling */
+.hat-top, .hat-band, .hat-interior {
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+    pointer-events: none; /* Ensure these don't block clicks */
+}
+
+.hat-brim-front-left, .hat-brim-front-right, .hat-brim-back {
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+    pointer-events: none; /* Ensure these don't block clicks */
+}
+
+/* Mouse SVG styling */
+.mouse {
+    cursor: url('../assets/images/wand-cursor.png'), pointer !important;
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    pointer-events: auto !important; /* Force clickability */
+    z-index: 25; /* Even higher z-index to ensure visibility */
+    opacity: 1 !important; /* Force full opacity */
+}
+
+/* Each SVG element in mouse should be opaque */
+.mouse * {
+    opacity: 1 !important;
+    fill-opacity: 1 !important;
+}
+
+/* Tease appearance - just show the top of the mouse */
+.tease-appearance {
+    animation: teasePopAnimation 0.6s ease-out, mouseWiggle 0.1s linear infinite 0.4s;
+}
+
+/* Full appearance - mouse comes most of the way out */
+.full-appearance {
+    animation: fullPopAnimation 0.8s ease-out, mouseWiggle 0.1s linear infinite 0.4s;
+}
+
+/* Animation for teasing appearance - just showing ears and top of head */
+@keyframes teasePopAnimation {
+    0% {
+        transform: translateX(-50%) translateY(40px);
+        opacity: 1; /* Always fully opaque */
+    }
+    40% {
+        transform: translateX(-50%) translateY(0px); /* Adjusted to show just the top */
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-50%) translateY(-10px); /* Using previous full height as tease height */
+        opacity: 1;
+    }
+}
+
+/* Animation for full appearance - mouse comes further out of the hat */
+@keyframes fullPopAnimation {
+    0% {
+        transform: translateX(-50%) translateY(40px);
+        opacity: 1;
+    }
+    30% {
+        transform: translateX(-50%) translateY(0px); /* Higher intermediate position */
+        opacity: 1;
+    }
+    60% {
+        transform: translateX(-50%) translateY(-20px); /* Higher position */
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-50%) translateY(-30px); /* Much higher final position */
+        opacity: 1;
+    }
+}
+
+/* Mouse wiggle animation - keep the transform consistent with final positions */
+@keyframes mouseWiggle {
+    0% { transform: translateX(-50%) rotate(-2deg); }
+    50% { transform: translateX(-50%) rotate(2deg); }
+    100% { transform: translateX(-50%) rotate(-2deg); }
+}
+
+/* Make mouse container active for animation */
+.mouse-pop-active .mouse {
+    /* No default animation here - will be set by specific classes */
+}
+
+/* Game controls styling */
+#controls {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#startButton {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#startButton:hover {
+    background-color: #45a049;
+}
+
+#score {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* Swirl container styling */
+.swirl-container {
+    position: absolute;
+    width: 0;
+    height: 0;
+    z-index: 25;
+    pointer-events: none;
+}
+
+/* Individual star in the swirl */
+.swirl-star {
+    position: absolute;
+    background-color: gold;
+    clip-path: polygon(
+        50% 0%, 61% 35%, 98% 35%, 68% 57%, 
+        79% 91%, 50% 70%, 21% 91%, 32% 57%, 
+        2% 35%, 39% 35%
+    );
+    transform-origin: center;
+    animation: swirlAnimation 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
+    transform: scale(0) translate(0, 0) rotate(0deg);
+    left: -5px;
+    top: -5px;
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.8);
+}
+
+/* Starburst effect for mouse click */
+.starburst-container {
+    position: absolute;
+    width: 0;
+    height: 0;
+    z-index: 30;
+    pointer-events: none;
+}
+
+.starburst-particle {
+    position: absolute;
+    background-color: gold;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    transform: translate(-3px, -3px);
+    box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.8);
+    animation: burstAnimation 0.6s ease-out forwards;
+}
+
+/* Animation for starburst particles */
+@keyframes burstAnimation {
+    0% {
+        transform: scale(0.2) translate(-3px, -3px);
+        opacity: 1;
+    }
+    70% {
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1) translate(calc(-3px + var(--x-offset)), calc(-3px + var(--y-offset)));
+        opacity: 0;
+    }
+}
+
+/* Updated swirl animation for hat-to-hat movement */
+@keyframes swirlAnimation {
+    0% {
+        transform: scale(0.5) translate(var(--start-x), var(--start-y)) rotate(0deg);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.5) translate(var(--end-x), var(--end-y)) rotate(360deg);
+        opacity: 0.2;
+    }
+}

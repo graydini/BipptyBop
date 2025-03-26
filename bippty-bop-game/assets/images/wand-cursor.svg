@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Magic wand shaft -->
+  <rect x="8" y="16" width="20" height="3" transform="rotate(-45 8 16)" fill="#A67C52" />
+  
+  <!-- Magic wand handle -->
+  <rect x="5" y="19" width="8" height="4" transform="rotate(-45 5 19)" fill="#8B4513" />
+  
+  <!-- Star at tip -->
+  <path d="M26 4 L27.5 8.5 L32 10 L27.5 11.5 L26 16 L24.5 11.5 L20 10 L24.5 8.5 Z" fill="gold" stroke="white" stroke-width="0.5" />
+  
+  <!-- Magic sparkles -->
+  <circle cx="22" cy="7" r="0.8" fill="white" />
+  <circle cx="24" cy="8" r="0.6" fill="white" />
+  <circle cx="23" cy="6" r="0.5" fill="white" />
+</svg>
