@@ -1,56 +1,42 @@
-# BipptyBop Game
+# Bippty-Bop Game
 
-Welcome to BipptyBop, a fun and engaging magician/computer themed Whack-a-Mole style game! In this game, you will use a magic wand to hit computer mice that pop up from top hats. The objective is to score as many points as possible by hitting the mice while avoiding misses.
+A magical whack-a-mole style game where rabbits appear from magician inspired by my computer wizard themed website. Test your reflexes by catching the rabbits with your magic wand as they pop out.
 
-## Game Overview
+## Features
 
-- **Game Theme**: Magician and Computer
-- **Main Elements**:
-  - **Magic Wand**: Your mallet to hit the mice.
-  - **Top Hats**: The holes from which the mice appear.
-  - **Computer Mice**: The targets you need to hit.
+- Magical themed game with rabbits, top hats, and a wand cursor
+- Dynamic star swirl animations between rabbit appearances
+- Sparkle effects when you catch a rabbit
+- Procedurally generated sound effects
+- High score tracking
 
 ## How to Play
 
-1. **Start the Game**: Open the `index.html` file in your web browser to start playing.
-2. **Gameplay**:
-   - Mice will randomly appear from the top hats.
-   - Click on the mice with your magic wand (mouse click) to score points.
-   - Each successful hit will play a sound effect and increase your score.
-   - Missing a mouse will also trigger a sound effect, so be careful!
-3. **Scoring**: Your score will be displayed on the screen. Try to beat your high score!
+1. Click the "Start Game" button
+2. Watch for rabbits popping out of the magician hats
+3. Click on the rabbits with your magic wand cursor before they disappear
+4. Try to get the highest score possible!
 
-## Assets
+## Technologies Used
 
-- **Audio**:
-  - `hit.mp3`: Sound effect for hitting a mouse.
-  - `miss.mp3`: Sound effect for missing a mouse.
-  - `background-music.mp3`: Background music for the game.
+- HTML5
+- CSS3 with animations and transformations
+- JavaScript (ES6+)
+- Web Audio API for sound generation
 
-- **Images**:
-  - `magic-wand.png`: Image of the magic wand.
-  - `top-hat.png`: Image of the top hat.
-  - `computer-mouse.png`: Image of the computer mouse.
-  - `background.png`: Background image for the game.
+## Creator
 
-## Files Structure
+This game was created by Graydini with the interfence of Claude Copilot. (bradsweb.info).
 
-```
-bippty-bop-game
-├── assets
-│   ├── audio
-│   ├── images
-├── css
-│   ├── style.css
-│   └── animations.css
-├── js
-│   ├── game.js
-│   ├── audio.js
-│   └── score.js
-├── index.html
-└── README.md
-```
+Check out more of my work and other projects on my personal website:
+[bradsweb.info](https://bradsweb.info)
 
-## Additional Information
+## Support This Project
 
-Feel free to modify the game assets and code to create your own version of BipptyBop! Enjoy playing and have fun!
+If you enjoy this game and would like to support the developer, consider making a donation:
+
+- PayPal: paypal@baje.us
+- Cash App: $fixbroke
+
+I don't market my skills and Your support is greatly appreciated.
+
