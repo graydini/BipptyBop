@@ -256,12 +256,12 @@ h1 {
 
 /* Tease appearance - just show the top of the mouse */
 .tease-appearance {
-    animation: teasePopAnimation 0.6s ease-out, mouseWiggle 0.1s linear infinite 0.4s;
+    animation: teasePopAnimation 0.6s ease-out;
 }
 
 /* Full appearance - mouse comes most of the way out */
 .full-appearance {
-    animation: fullPopAnimation 0.8s ease-out, mouseWiggle 0.1s linear infinite 0.4s;
+    animation: fullPopAnimation 0.8s ease-out;
 }
 
 /* Animation for teasing appearance - just showing ears and top of head */
@@ -271,11 +271,11 @@ h1 {
         opacity: 1; /* Always fully opaque */
     }
     40% {
-        transform: translateX(-50%) translateY(0px); /* Adjusted to show just the top */
+        transform: translateX(-50%) translateY(20px); /* 10px lower than before (was 10px) */
         opacity: 1;
     }
-    100% {
-        transform: translateX(-50%) translateY(-10px); /* Using previous full height as tease height */
+    80%, 100% {
+        transform: translateX(-50%) translateY(20px); /* 10px lower than before (was 10px) */
         opacity: 1;
     }
 }
@@ -290,7 +290,7 @@ h1 {
         transform: translateX(-50%) translateY(0px); /* Higher intermediate position */
         opacity: 1;
     }
-    60% {
+     60%, 80% {
         transform: translateX(-50%) translateY(-20px); /* Higher position */
         opacity: 1;
     }
@@ -310,6 +310,17 @@ h1 {
 /* Make mouse container active for animation */
 .mouse-pop-active .mouse {
     /* No default animation here - will be set by specific classes */
+}
+
+/* Mouse stun effect animation - increased duration */
+.stun-animation {
+    animation: stunShake 1s ease-in-out;
+}
+
+@keyframes stunShake {
+    0%, 100% { transform: translateX(-50%) rotate(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-52%) rotate(-5deg); }
+    20%, 40%, 60%, 80% { transform: translateX(-48%) rotate(5deg); }
 }
 
 /* Game controls styling */
@@ -336,6 +347,52 @@ h1 {
     font-size: 24px;
     font-weight: bold;
     margin: 10px 0;
+}
+
+/* Lives display styling */
+#lives {
+    font-size: 24px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.life-heart {
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.life-heart.lost {
+    opacity: 0.3;
+    transform: scale(0.8);
+}
+
+/* 1UP message animation */
+.one-up-message {
+    position: absolute;
+    color: #4CAF50;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 0 0 5px white, 0 0 10px white;
+    pointer-events: none;
+    animation: oneUpFloat 1s ease-out forwards;
+    z-index: 100;
+    transform: translateX(-50%);
+}
+
+@keyframes oneUpFloat {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(0);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-30px);
+    }
 }
 
 /* Swirl container styling */
@@ -413,4 +470,44 @@ h1 {
         transform: scale(0.5) translate(var(--end-x), var(--end-y)) rotate(360deg);
         opacity: 0.2;
     }
+}
+
+/* Game Over message styling */
+.game-over-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    z-index: 100;
+    text-align: center;
+    font-size: 24px;
+    border: 2px solid gold;
+}
+
+.game-over-message h2 {
+    color: gold;
+    margin-top: 0;
+}
+
+.game-over-message p {
+    margin-bottom: 20px;
+}
+
+.play-again-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.play-again-btn:hover {
+    background-color: #45a049;
 }

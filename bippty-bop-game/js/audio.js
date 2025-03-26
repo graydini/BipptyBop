@@ -10,31 +10,8 @@
         return audioContext;
     }
     
-    // Create a hit sound (high-pitched "ping")
+    // SWAPPED: Create a hit sound (now a low "thud")
     function playHitSound() {
-        const ctx = initAudio();
-        
-        // Create oscillator for the main tone
-        const oscillator = ctx.createOscillator();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
-        oscillator.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1); // Slide down
-        
-        // Create gain node for volume control
-        const gainNode = ctx.createGain();
-        gainNode.gain.setValueAtTime(0, ctx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.01);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        
-        // Connect and start
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        oscillator.start();
-        oscillator.stop(ctx.currentTime + 0.3);
-    }
-    
-    // Create a miss sound (low "thud")
-    function playMissSound() {
         const ctx = initAudio();
         
         // Create oscillator
@@ -65,6 +42,29 @@
         // Connect everything
         oscillator.connect(distortion);
         distortion.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + 0.3);
+    }
+    
+    // SWAPPED: Create a miss sound (now a high-pitched "ping")
+    function playMissSound() {
+        const ctx = initAudio();
+        
+        // Create oscillator for the main tone
+        const oscillator = ctx.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+        oscillator.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1); // Slide down
+        
+        // Create gain node for volume control
+        const gainNode = ctx.createGain();
+        gainNode.gain.setValueAtTime(0, ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        
+        // Connect and start
+        oscillator.connect(gainNode);
         gainNode.connect(ctx.destination);
         oscillator.start();
         oscillator.stop(ctx.currentTime + 0.3);

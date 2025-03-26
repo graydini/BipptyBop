@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const gameArea = document.getElementById('gameArea');
     const scoreDisplay = document.getElementById('score');
     const startButton = document.getElementById('startButton');
+    const livesDisplay = document.getElementById('lives');
     
     // Remove the audio loading code - now using programmatic audio
 
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let gameInterval;
     let gameActive = false;
     let lastHatPosition = null;
+    let lives = 5; // Starting lives
 
     // Initialize the game area with SVG container
     function initializeGameArea() {
@@ -114,12 +116,38 @@ document.addEventListener('DOMContentLoaded', function() {
     function startGame() {
         score = 0;
         scoreDisplay.textContent = `Score: ${score}`;
+        lives = 5; // Reset lives
+        updateLivesDisplay();
         gameActive = true;
         window.gameAudio.playBackgroundMusic(); // Use new audio system
         initializeGameArea();
         
-        // Slow down the game by increasing interval
-        gameInterval = setInterval(showMouse, 1400); 
+        // Schedule the first mouse appearance with random timing
+        scheduleNextMouse();
+    }
+    
+    function updateLivesDisplay() {
+        if (livesDisplay) {
+            // Clear existing hearts
+            livesDisplay.innerHTML = '';
+            
+            // Add heart icons for each life
+            for (let i = 0; i < lives; i++) {
+                const heart = document.createElement('span');
+                heart.textContent = '❤️';
+                heart.className = 'life-heart';
+                livesDisplay.appendChild(heart);
+            }
+        }
+    }
+
+    // Function to schedule the next mouse appearance with random timing
+    function scheduleNextMouse() {
+        if (!gameActive) return;
+        
+        // Random timing between 1000ms and 2500ms
+        const nextAppearance = 1000 + Math.random() * 1500;
+        gameInterval = setTimeout(showMouse, nextAppearance);
     }
 
     function createMouseSvg() {
@@ -200,24 +228,23 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get all hat elements
         const totalHats = document.getElementsByClassName('top-hat');
         
-        // Generate random hat index between 0 and 5
+        // Generate random hat index
         const randomHat = Math.floor(Math.random() * totalHats.length);
         const topHat = totalHats[randomHat];
         
-        // First create a magical star swirl animation and sound
-        createMagicalSwirl(lastHatPosition, topHat).then(() => {
-            // Set this hat as the last hat for next animation
-            lastHatPosition = topHat;
-            
-            // After swirl animation completes, show the mouse
+        // Determine if this will be a tease appearance (40% chance)
+        const isTeaseAppearance = Math.random() < 0.4;
+        
+        // Only perform magic swirl for full appearances
+        const showWithSwirl = () => {
+            // After swirl animation completes or immediately for tease, show the mouse
             const mouse = createMouseSvg();
             const mouseContainer = topHat.querySelector('.mouse-container');
             
             // Add appropriate class based on appearance type
-            const isTeaseAppearance = Math.random() < 0.4;
             mouse.classList.add(isTeaseAppearance ? 'tease-appearance' : 'full-appearance');
             
-            // Append mouse to the mouse container (now above hat layers)
+            // Append mouse to the mouse container
             mouseContainer.appendChild(mouse);
             
             // Ensure mouse is positioned correctly and fully opaque
@@ -234,26 +261,107 @@ document.addEventListener('DOMContentLoaded', function() {
             mouseContainer.classList.add('mouse-pop-active');
             
             mouse.addEventListener('click', (event) => {
-                window.gameAudio.playHitSound(); // Use new audio system
+                // Play hit sound (swapped - now the thud sound)
+                window.gameAudio.playHitSound();
                 score++;
                 scoreDisplay.textContent = `Score: ${score}`;
                 
-                // Create starburst effect at click location
-                createStarburst(event.clientX, event.clientY);
+                // Award extra life every 30 points
+                if (score % 30 === 0) {
+                    lives++;
+                    updateLivesDisplay();
+                    // Show 1UP message
+                    showOneUpMessage(topHat);
+                }
                 
-                mouseContainer.removeChild(mouse);
-                mouseContainer.classList.remove('mouse-pop-active');
+                // Apply stun animation when clicked - longer duration
+                mouse.classList.remove('tease-appearance');
+                mouse.classList.remove('full-appearance');
+                mouse.classList.add('stun-animation');
+                
+                // Wait for longer stun animation to finish before removing
+                setTimeout(() => {
+                    if (mouseContainer.contains(mouse)) {
+                        mouseContainer.removeChild(mouse);
+                        mouseContainer.classList.remove('mouse-pop-active');
+                        
+                        // Schedule next appearance after mouse disappears
+                        scheduleNextMouse();
+                    }
+                }, 1000); // Increased stun duration from 500ms to 1000ms
             });
 
             // Set timeout based on appearance type
+            const appearanceDuration = isTeaseAppearance ? 600 : 800;
             setTimeout(() => {
-                if (mouseContainer.contains(mouse)) {
-                    window.gameAudio.playMissSound(); // Use new audio system
+                if (mouseContainer.contains(mouse) && !mouse.classList.contains('stun-animation')) {
+                    // Play miss sound (swapped - now the ping sound)
+                    window.gameAudio.playMissSound();
+                    
+                    // Create starburst effect when mouse disappears
+                    const mouseRect = mouse.getBoundingClientRect();
+                    const centerX = mouseRect.left + mouseRect.width / 2;
+                    const centerY = mouseRect.top + mouseRect.height / 2;
+                    createStarburst(centerX, centerY);
+                    
+                    // Only lose a life for full appearances, not teases
+                    if (!isTeaseAppearance) {
+                        lives--;
+                        updateLivesDisplay();
+                        
+                        // Check if game over
+                        if (lives <= 0) {
+                            mouseContainer.removeChild(mouse);
+                            mouseContainer.classList.remove('mouse-pop-active');
+                            endGame();
+                            return;
+                        }
+                    }
+                    
                     mouseContainer.removeChild(mouse);
                     mouseContainer.classList.remove('mouse-pop-active');
+                    
+                    // Schedule next appearance after mouse disappears
+                    scheduleNextMouse();
                 }
-            }, isTeaseAppearance ? 600 : 800);
-        });
+            }, appearanceDuration);
+        };
+        
+        if (isTeaseAppearance) {
+            // Skip the swirl animation for tease appearances
+            showWithSwirl();
+        } else {
+            // First create a magical star swirl animation and sound for full appearances
+            createMagicalSwirl(lastHatPosition, topHat).then(() => {
+                // Set this hat as the last hat position for next animation
+                lastHatPosition = topHat;
+                showWithSwirl();
+            });
+        }
+    }
+    
+    // Function to show 1UP message
+    function showOneUpMessage(nearElement) {
+        const oneUpMessage = document.createElement('div');
+        oneUpMessage.className = 'one-up-message';
+        oneUpMessage.textContent = '1UP!';
+        
+        // Position message near the element
+        const rect = nearElement.getBoundingClientRect();
+        const gameAreaRect = gameArea.getBoundingClientRect();
+        
+        oneUpMessage.style.left = `${rect.left + rect.width/2 - gameAreaRect.left}px`;
+        oneUpMessage.style.top = `${rect.top - 20 - gameAreaRect.top}px`;
+        
+        // Add to game area and animate
+        gameArea.appendChild(oneUpMessage);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (gameArea.contains(oneUpMessage)) {
+                gameArea.removeChild(oneUpMessage);
+            }
+        }, 1000);
     }
 
     // Function to create a magical star swirl effect between hats
@@ -389,10 +497,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function endGame() {
-        clearInterval(gameInterval);
+        clearTimeout(gameInterval); 
         gameActive = false;
-        window.gameAudio.stopBackgroundMusic(); // Use new audio system
-        alert(`Game Over! Your score is: ${score}`);
+        window.gameAudio.stopBackgroundMusic();
+        
+        // Create game over message instead of alert
+        const gameOverMsg = document.createElement('div');
+        gameOverMsg.className = 'game-over-message';
+        gameOverMsg.innerHTML = `
+            <h2>Game Over!</h2>
+            <p>Your score: ${score}</p>
+            <button class="play-again-btn">Play Again</button>
+        `;
+        
+        // Add to game area
+        gameArea.appendChild(gameOverMsg);
+        
+        // Add event listener to play again button
+        const playAgainBtn = gameOverMsg.querySelector('.play-again-btn');
+        playAgainBtn.addEventListener('click', () => {
+            gameArea.removeChild(gameOverMsg);
+            startGame();
+        });
     }
 
     // Initialize game area once DOM is loaded
