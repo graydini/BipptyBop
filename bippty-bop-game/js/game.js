@@ -46,33 +46,31 @@ document.addEventListener('DOMContentLoaded', function() {
             // Create a container with layered elements for 3D effect
             hatContainers[i].innerHTML = `
                 <div class="hat-container">
-                    <!-- Three layers for 3D effect -->
+                    <!-- Back layer - behind mouse -->
                     <div class="hat-back-layer">
-                        <!-- Back part of the hat brim -->
                         <svg class="hat-svg" width="100%" height="100%" viewBox="0 0 100 120">
-                            <!-- Back half of the brim (rendered first/behind) -->
-                            <path class="hat-brim-back" d="M10,60 Q50,80 90,60 Q70,70 50,72 Q30,70 10,60" fill="#1A1427" />
+                            <!-- Top part of brim (behind mouse) -->
+                            <path class="hat-brim-top" d="M10,60 Q30,50 50,48 Q70,50 90,60" fill="#1F142C" />
+                            
+                            <!-- Shadow under the brim -->
+                            <path class="hat-brim-shadow" d="M10,60 Q50,80 90,60" fill="#1A1427" opacity="0.7" />
                         </svg>
                     </div>
                     
-                    <!-- Mouse will appear here (middle layer) -->
+                    <!-- Mouse container (middle layer) -->
                     <div class="mouse-container"></div>
                     
-                    <!-- Front part of the hat (top layer) -->
+                    <!-- Front layer (in front of mouse) -->
                     <div class="hat-front-layer">
                         <svg class="hat-svg" width="100%" height="100%" viewBox="0 0 100 120">
-                            <!-- Magic hat body (not affecting mouse clicks) -->
-                            <path class="hat-top" d="M30,60 L30,90 Q50,105 70,90 L70,60" fill="#291C3A" pointer-events="none" />
+                            <!-- Hat body (cylindrical part) -->
+                            <path class="hat-top" d="M30,60 L30,90 Q50,105 70,90 L70,60" fill="#291C3A" />
                             
-                            <!-- Hat band (decoration) -->
-                            <path class="hat-band" d="M30,75 Q50,80 70,75" stroke="#A01FC8" stroke-width="3" fill="none" pointer-events="none" />
+                            <!-- Hat band -->
+                            <path class="hat-band" d="M30,75 Q50,80 70,75" stroke="#A01FC8" stroke-width="3" fill="none" />
                             
-                            <!-- Front rim ONLY (allowing clicks through center) -->
-                            <path class="hat-brim-front-left" d="M10,60 Q20,55 30,53" fill="#1F142C" pointer-events="none" />
-                            <path class="hat-brim-front-right" d="M70,53 Q80,55 90,60" fill="#1F142C" pointer-events="none" />
-                            
-                            <!-- Hat interior shadow (not affecting mouse clicks) -->
-                            <ellipse class="hat-interior" cx="50" cy="60" rx="30" ry="7" fill="#0E0822" opacity="0.7" pointer-events="none" />
+                            <!-- Bottom part of brim (in front of mouse) -->
+                            <path class="hat-brim-bottom" d="M10,60 Q50,70 90,60" fill="#1F142C" />
                         </svg>
                     </div>
                 </div>`;

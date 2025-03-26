@@ -130,6 +130,17 @@ h1 {
     pointer-events: none; /* Don't block mouse clicks */
 }
 
+/* Hat back layer with TOP part of brim */
+.hat-back-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+
 /* Mouse container - should be above the hat front layer */
 .mouse-container {
     position: absolute;
@@ -141,6 +152,17 @@ h1 {
     overflow: visible;
 }
 
+/* Mouse container - middle layer */
+.mouse-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20; 
+    overflow: visible;
+}
+
 /* Hat front layer */
 .hat-front-layer {
     position: absolute;
@@ -149,6 +171,17 @@ h1 {
     width: 100%;
     height: 100%;
     z-index: 30; /* Below mouse now */
+    pointer-events: none;
+}
+
+/* Hat front layer with BOTTOM part of brim */
+.hat-front-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 30;
     pointer-events: none;
 }
 
@@ -173,6 +206,28 @@ h1 {
     pointer-events: none; /* Ensure these don't block clicks */
 }
 
+/* Hat brim styling */
+.hat-brim-top {
+    /* Top part of brim - behind mouse */
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+}
+
+.hat-brim-bottom {
+    /* Bottom part of brim - in front of mouse */
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+/* Hat SVG specific parts */
+.hat-opening {
+    opacity: 0.8;
+}
+
+.hat-brim-outer {
+    stroke-opacity: 1;
+    stroke-width: 2px;
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
+}
+
 /* Mouse SVG styling */
 .mouse {
     cursor: url('../assets/images/wand-cursor.png'), pointer !important;
@@ -188,6 +243,15 @@ h1 {
 .mouse * {
     opacity: 1 !important;
     fill-opacity: 1 !important;
+}
+
+/* Ensure all mouse parts are fully opaque */
+.mouse ellipse, 
+.mouse circle, 
+.mouse path {
+    opacity: 1 !important;
+    fill-opacity: 1 !important;
+    stroke-opacity: 1 !important;
 }
 
 /* Tease appearance - just show the top of the mouse */
