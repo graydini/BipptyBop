@@ -99,24 +99,32 @@ h1 {
     z-index: 1; /* Above stars */
 }
 
-/* Top hat styling */
+/* Top hat styling - updated for dynamic positioning */
 .top-hat {
-    position: relative;
-    width: 33.33%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    transform: translate(-50%, -50%);
     perspective: 600px;
+    z-index: 10;
+}
+
+/* First hat specific styling */
+.first-hat {
+    z-index: 15;
+}
+
+/* Emerging hat specific styling */
+.emerging-hat {
+    z-index: 12;
 }
 
 /* Hat container styling */
 .hat-container {
     position: relative;
-    width: 180px;
-    height: 180px;
+    width: 100%;
+    height: 100%;
     transform-style: preserve-3d;
-    margin-top: 40px; /* Lower the hat position */
 }
 
 /* Hat back layer - lowest z-index */
@@ -510,4 +518,125 @@ h1 {
 
 .play-again-btn:hover {
     background-color: #45a049;
+}
+
+/* Start button on the playfield */
+.playfield-start-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #6A0DAD, #9370DB);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 100;
+    letter-spacing: 2px;
+    animation: glowingButton 2s infinite;
+}
+
+.playfield-start-button:hover {
+    background: linear-gradient(135deg, #9370DB, #6A0DAD);
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 0 30px rgba(138, 43, 226, 0.9);
+}
+
+@keyframes glowingButton {
+    0% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.7); }
+    50% { box-shadow: 0 0 30px rgba(138, 43, 226, 0.9), 0 0 40px rgba(255, 255, 255, 0.3); }
+    100% { box-shadow: 0 0 10px rgba(138, 43, 226, 0.7); }
+}
+
+/* Sparkle shower effect */
+.sparkle-shower {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.sparkle {
+    position: absolute;
+    background-color: white;
+    clip-path: polygon(
+        50% 0%, 61% 35%, 98% 35%, 68% 57%, 
+        79% 91%, 50% 70%, 21% 91%, 32% 57%, 
+        2% 35%, 39% 35%
+    );
+    animation: fallingStar 2s linear forwards;
+    z-index: 50;
+}
+
+@keyframes fallingStar {
+    0% {
+        transform: translateY(-10px) scale(0.3) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(500px) scale(0.1) rotate(180deg);
+        opacity: 0;
+    }
+}
+
+/* Magical trail particles */
+.magical-trail {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 40;
+}
+
+.trail-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(170,120,255,0.6) 70%, rgba(150,100,255,0) 100%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: trailParticle 0.8s ease-out forwards;
+    z-index: 40;
+}
+
+@keyframes trailParticle {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+}
+
+/* Pulse animation for the start button */
+.pulse-animation {
+    animation: pulseButton 1.5s infinite;
+}
+
+@keyframes pulseButton {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }

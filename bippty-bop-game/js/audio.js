@@ -70,7 +70,7 @@
         oscillator.stop(ctx.currentTime + 0.3);
     }
     
-    // Background music (simple magical arpeggio loop)
+    // Background music (simple magical arpeggio loop with varying keys)
     let bgMusicPlaying = false;
     let bgMusicNodes = [];
     
@@ -80,12 +80,23 @@
         const ctx = initAudio();
         bgMusicPlaying = true;
         
-        // Create a magical arpeggio
-        const notes = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+        // Create a magical arpeggio with varying keys
+        // Base frequencies for different keys (C, D, E, G, A)
+        const baseKeys = [
+            [261.63, 329.63, 392.00, 523.25], // C4, E4, G4, C5
+            [293.66, 369.99, 440.00, 587.33], // D4, F#4, A4, D5
+            [329.63, 415.30, 493.88, 659.25], // E4, G#4, B4, E5
+            [392.00, 493.88, 587.33, 783.99], // G4, B4, D5, G5
+            [440.00, 554.37, 659.25, 880.00]  // A4, C#5, E5, A5
+        ];
+        
+        let currentKeyIndex = 0;
         const duration = 0.2;
         const spacing = 0.21;
         
         function playArpeggio(time) {
+            const notes = baseKeys[currentKeyIndex];
+            
             notes.forEach((note, i) => {
                 // Create oscillator
                 const osc = ctx.createOscillator();
@@ -111,6 +122,8 @@
             
             // Schedule the next arpeggio if still playing
             if (bgMusicPlaying) {
+                // Change key for next arpeggio
+                currentKeyIndex = (currentKeyIndex + 1) % baseKeys.length;
                 setTimeout(() => playArpeggio(ctx.currentTime), 1000);
             }
         }

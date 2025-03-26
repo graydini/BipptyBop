@@ -2,19 +2,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     const gameArea = document.getElementById('gameArea');
     const scoreDisplay = document.getElementById('score');
-    const startButton = document.getElementById('startButton');
     const livesDisplay = document.getElementById('lives');
     
-    // Remove the audio loading code - now using programmatic audio
-
     // Check if elements exist before proceeding
     if (!gameArea) {
         console.error("Error: Game area element not found! Make sure there's an element with id 'gameArea'");
-        return;
-    }
-
-    if (!startButton) {
-        console.error("Error: Start button element not found! Make sure there's an element with id 'startButton'");
         return;
     }
 
@@ -28,7 +20,20 @@ document.addEventListener('DOMContentLoaded', function() {
     let gameActive = false;
     let lastHatPosition = null;
     let lives = 5; // Starting lives
+    let hatInitialized = false;
 
+    // Define hat positions
+    const hatPositions = [
+        // First row
+        { left: '16.5%', top: '25%' },
+        { left: '50%', top: '25%' },
+        { left: '83.5%', top: '25%' },
+        // Second row
+        { left: '16.5%', top: '75%' },
+        { left: '50%', top: '75%' },
+        { left: '83.5%', top: '75%' }
+    ];
+    
     // Initialize the game area with SVG container
     function initializeGameArea() {
         // Update SVG background to dark blue gradient
@@ -37,46 +42,26 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add magical stars to the background
         createMagicalStars();
         
-        // Create SVG containers for each hat if they don't exist
-        const hatContainers = document.getElementsByClassName('top-hat');
-        if (hatContainers.length === 0) {
-            console.error("Error: No top-hat elements found!");
-            return;
-        }
+        // Create the start button on the playfield
+        createStartButton();
+    }
+    
+    // Create the start button in the center of the playfield
+    function createStartButton() {
+        const startButton = document.createElement('button');
+        startButton.id = 'playFieldStartButton';
+        startButton.textContent = 'START';
+        startButton.classList.add('playfield-start-button');
         
-        for (let i = 0; i < hatContainers.length; i++) {
-            // Create a container with layered elements for 3D effect
-            hatContainers[i].innerHTML = `
-                <div class="hat-container">
-                    <!-- Back layer - behind mouse -->
-                    <div class="hat-back-layer">
-                        <svg class="hat-svg" width="100%" height="100%" viewBox="0 0 100 120">
-                            <!-- Top part of brim (behind mouse) -->
-                            <path class="hat-brim-top" d="M10,60 Q30,50 50,48 Q70,50 90,60" fill="#1F142C" />
-                            
-                            <!-- Shadow under the brim -->
-                            <path class="hat-brim-shadow" d="M10,60 Q50,80 90,60" fill="#1A1427" opacity="0.7" />
-                        </svg>
-                    </div>
-                    
-                    <!-- Mouse container (middle layer) -->
-                    <div class="mouse-container"></div>
-                    
-                    <!-- Front layer (in front of mouse) -->
-                    <div class="hat-front-layer">
-                        <svg class="hat-svg" width="100%" height="100%" viewBox="0 0 100 120">
-                            <!-- Hat body (cylindrical part) -->
-                            <path class="hat-top" d="M30,60 L30,90 Q50,105 70,90 L70,60" fill="#291C3A" />
-                            
-                            <!-- Hat band -->
-                            <path class="hat-band" d="M30,75 Q50,80 70,75" stroke="#A01FC8" stroke-width="3" fill="none" />
-                            
-                            <!-- Bottom part of brim (in front of mouse) -->
-                            <path class="hat-brim-bottom" d="M10,60 Q50,70 90,60" fill="#1F142C" />
-                        </svg>
-                    </div>
-                </div>`;
-        }
+        gameArea.appendChild(startButton);
+        
+        startButton.addEventListener('click', function() {
+            // Remove the start button
+            gameArea.removeChild(startButton);
+            
+            // Begin the hat animation sequence
+            animateFirstHatEntrance();
+        });
     }
     
     // Create magical stars in the background
@@ -112,15 +97,279 @@ document.addEventListener('DOMContentLoaded', function() {
         
         gameArea.appendChild(starsContainer);
     }
+    
+    // Animate the first hat dropping into place
+    function animateFirstHatEntrance() {
+        // Create sparkle shower effect
+        createSparkleShower();
+        
+        // Create first hat that will drop from above
+        const firstHat = document.createElement('div');
+        firstHat.className = 'top-hat first-hat';
+        firstHat.style.position = 'absolute';
+        firstHat.style.left = '50%';
+        firstHat.style.top = '-200px'; // Start above the visible area
+        firstHat.style.transform = 'translateX(-50%) rotate(180deg) scale(0.8)';
+        
+        // Add hat container and SVG structure
+        firstHat.innerHTML = `
+            <div class="hat-container">
+                <div class="hat-back-layer">
+                    <svg class="hat-svg" width="100%" height="100%" viewBox="0 0 100 120">
+                        <path class="hat-brim-top" d="M10,60 Q30,50 50,48 Q70,50 90,60" fill="#1F142C" />
+                        <path class="hat-brim-shadow" d="M10,60 Q50,80 90,60" fill="#1A1427" opacity="0.7" />
+                    </svg>
+                </div>
+                <div class="mouse-container"></div>
+                <div class="hat-front-layer">
+                    <svg class="hat-svg" width="100%" height="100%" viewBox="0 0 100 120">
+                        <path class="hat-top" d="M30,60 L30,90 Q50,105 70,90 L70,60" fill="#291C3A" />
+                        <path class="hat-band" d="M30,75 Q50,80 70,75" stroke="#A01FC8" stroke-width="3" fill="none" />
+                        <path class="hat-brim-bottom" d="M10,60 Q50,70 90,60" fill="#1F142C" />
+                    </svg>
+                </div>
+            </div>
+        `;
+        
+        gameArea.appendChild(firstHat);
+        
+        // Play magical sound
+        window.gameAudio.playStarSwirlSound();
+        
+        // Animate the hat dropping
+        let startTime = null;
+        const animationDuration = 1500; // 1.5 seconds
+        const targetPosition = '50%';
+        
+        function animateHat(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = (timestamp - startTime) / animationDuration;
+            
+            if (progress < 1) {
+                // Calculate current position and rotation
+                const currentY = -200 + (progress * 350); // Drop from -200px to 150px
+                const rotation = 180 - (progress * 180); // Rotate from 180deg to 0deg
+                const scale = 0.8 + (progress * 0.2); // Scale from 0.8 to 1.0
+                
+                firstHat.style.top = `${currentY}px`;
+                firstHat.style.transform = `translateX(-50%) rotate(${rotation}deg) scale(${scale})`;
+                
+                // Add bounce effect near the end
+                if (progress > 0.8) {
+                    const bounceProgress = (progress - 0.8) / 0.2;
+                    const bounce = Math.sin(bounceProgress * Math.PI) * 20;
+                    firstHat.style.top = `${currentY - bounce}px`;
+                }
+                
+                requestAnimationFrame(animateHat);
+            } else {
+                // Final position
+                firstHat.style.top = '150px'; // Center position
+                firstHat.style.transform = 'translateX(-50%) rotate(0deg) scale(1)';
+                
+                // After the hat lands, animate the other hats coming out
+                setTimeout(() => {
+                    animateRemainingHats(firstHat);
+                }, 500);
+            }
+        }
+        
+        requestAnimationFrame(animateHat);
+    }
+    
+    // Create a sparkle shower effect
+    function createSparkleShower() {
+        const sparkleCount = 50;
+        const sparkleContainer = document.createElement('div');
+        sparkleContainer.className = 'sparkle-shower';
+        
+        for (let i = 0; i < sparkleCount; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            
+            // Random position across the top half of the screen
+            const left = Math.random() * 100;
+            const delay = Math.random() * 1.5;
+            const size = 5 + Math.random() * 15;
+            
+            sparkle.style.left = `${left}%`;
+            sparkle.style.top = '0';
+            sparkle.style.width = `${size}px`;
+            sparkle.style.height = `${size}px`;
+            sparkle.style.animationDelay = `${delay}s`;
+            
+            sparkleContainer.appendChild(sparkle);
+        }
+        
+        gameArea.appendChild(sparkleContainer);
+        
+        // Remove the sparkle container after the animation
+        setTimeout(() => {
+            if (gameArea.contains(sparkleContainer)) {
+                gameArea.removeChild(sparkleContainer);
+            }
+        }, 3000);
+    }
+    
+    // Animate the remaining hats coming out of the first hat
+    function animateRemainingHats(firstHat) {
+        // Calculate first hat position
+        const firstHatRect = firstHat.getBoundingClientRect();
+        const gameAreaRect = gameArea.getBoundingClientRect();
+        const firstHatX = firstHatRect.left + firstHatRect.width / 2 - gameAreaRect.left;
+        const firstHatY = firstHatRect.top + firstHatRect.height / 2 - gameAreaRect.top;
+        
+        // Play magical sound for hat emergence
+        window.gameAudio.playStarSwirlSound();
+        
+        // Create and animate the remaining hats
+        let hatsPlaced = 1; // First hat is already placed
+        
+        for (let i = 0; i < hatPositions.length; i++) {
+            // Skip the middle position (index 1) since that's the first hat's position
+            if (i === 1) continue;
+            
+            setTimeout(() => {
+                const hat = document.createElement('div');
+                hat.className = 'top-hat emerging-hat';
+                hat.style.position = 'absolute';
+                hat.style.left = `${firstHatX}px`;
+                hat.style.top = `${firstHatY}px`;
+                hat.style.transform = 'translate(-50%, -50%) scale(0.2)';
+                hat.style.opacity = '0';
+                
+                // Add hat container and SVG structure
+                hat.innerHTML = `
+                    <div class="hat-container">
+                        <div class="hat-back-layer">
+                            <svg class="hat-svg" width="100%" height="100%" viewBox="0 0 100 120">
+                                <path class="hat-brim-top" d="M10,60 Q30,50 50,48 Q70,50 90,60" fill="#1F142C" />
+                                <path class="hat-brim-shadow" d="M10,60 Q50,80 90,60" fill="#1A1427" opacity="0.7" />
+                            </svg>
+                        </div>
+                        <div class="mouse-container"></div>
+                        <div class="hat-front-layer">
+                            <svg class="hat-svg" width="100%" height="100%" viewBox="0 0 100 120">
+                                <path class="hat-top" d="M30,60 L30,90 Q50,105 70,90 L70,60" fill="#291C3A" />
+                                <path class="hat-band" d="M30,75 Q50,80 70,75" stroke="#A01FC8" stroke-width="3" fill="none" />
+                                <path class="hat-brim-bottom" d="M10,60 Q50,70 90,60" fill="#1F142C" />
+                            </svg>
+                        </div>
+                    </div>
+                `;
+                
+                gameArea.appendChild(hat);
+                
+                // Create a magical trail
+                createMagicalTrail(firstHatX, firstHatY, hatPositions[i].left, hatPositions[i].top);
+                
+                // Animate the hat moving to its final position
+                let startTime = null;
+                const animationDuration = 800;
+                const targetLeft = hatPositions[i].left;
+                const targetTop = hatPositions[i].top;
+                
+                function animateEmergingHat(timestamp) {
+                    if (!startTime) startTime = timestamp;
+                    const progress = (timestamp - startTime) / animationDuration;
+                    
+                    if (progress < 1) {
+                        // Calculate current position
+                        const currentLeft = firstHatX + (parseFloat(targetLeft) - firstHatX) * progress;
+                        const currentTop = firstHatY + (parseFloat(targetTop) - firstHatY) * progress;
+                        const currentScale = 0.2 + (progress * 0.8); // Scale from 0.2 to 1.0
+                        const currentOpacity = progress;
+                        const rotation = 360 * progress; // Spin once during movement
+                        
+                        hat.style.left = `${currentLeft}px`;
+                        hat.style.top = `${currentTop}px`;
+                        hat.style.transform = `translate(-50%, -50%) scale(${currentScale}) rotate(${rotation}deg)`;
+                        hat.style.opacity = currentOpacity;
+                        
+                        requestAnimationFrame(animateEmergingHat);
+                    } else {
+                        // Final position
+                        hat.style.left = targetLeft;
+                        hat.style.top = targetTop;
+                        hat.style.transform = 'translate(-50%, -50%) scale(1) rotate(360deg)';
+                        hat.style.opacity = '1';
+                        
+                        hatsPlaced++;
+                        
+                        // When all hats are placed, start the game
+                        if (hatsPlaced === hatPositions.length) {
+                            setTimeout(() => {
+                                prepareGameStart();
+                            }, 500);
+                        }
+                    }
+                }
+                
+                requestAnimationFrame(animateEmergingHat);
+            }, (i - 1) * 300); // Stagger the animations
+        }
+    }
+    
+    // Create a magical trail effect between positions
+    function createMagicalTrail(startX, startY, endLeft, endTop) {
+        const particleCount = 20;
+        const trailContainer = document.createElement('div');
+        trailContainer.className = 'magical-trail';
+        
+        // Convert percentage positions to pixels for end position
+        const endX = parseFloat(endLeft) / 100 * gameArea.offsetWidth;
+        const endY = parseFloat(endTop) / 100 * gameArea.offsetHeight;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'trail-particle';
+            
+            const progress = i / particleCount;
+            const x = startX + (endX - startX) * progress;
+            const y = startY + (endY - startY) * progress;
+            
+            // Add some randomness to the path
+            const offsetX = (Math.random() - 0.5) * 30;
+            const offsetY = (Math.random() - 0.5) * 30;
+            
+            particle.style.left = `${x + offsetX}px`;
+            particle.style.top = `${y + offsetY}px`;
+            particle.style.animationDelay = `${i * 0.05}s`;
+            
+            trailContainer.appendChild(particle);
+        }
+        
+        gameArea.appendChild(trailContainer);
+        
+        // Remove the trail after the animation completes
+        setTimeout(() => {
+            if (gameArea.contains(trailContainer)) {
+                gameArea.removeChild(trailContainer);
+            }
+        }, 1500);
+    }
+    
+    // Prepare the game to start
+    function prepareGameStart() {
+        hatInitialized = true;
+        
+        // Create the start game button at the bottom
+        const startGameButton = document.getElementById('startButton');
+        if (startGameButton) {
+            startGameButton.disabled = false;
+            startGameButton.classList.add('pulse-animation');
+        }
+    }
 
     function startGame() {
+        if (!hatInitialized) return;
+        
         score = 0;
         scoreDisplay.textContent = `Score: ${score}`;
         lives = 5; // Reset lives
         updateLivesDisplay();
         gameActive = true;
         window.gameAudio.playBackgroundMusic(); // Use new audio system
-        initializeGameArea();
         
         // Schedule the first mouse appearance with random timing
         scheduleNextMouse();
@@ -524,11 +773,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize game area once DOM is loaded
     initializeGameArea();
 
-    startButton.addEventListener('click', () => {
-        if (!gameActive) {
-            startGame();
-        }
-    });
+    // Get the start button from controls area (not the one on the playfield)
+    const startButton = document.getElementById('startButton');
+    if (startButton) {
+        startButton.disabled = true; // Disable until hats are ready
+        
+        startButton.addEventListener('click', () => {
+            if (!gameActive && hatInitialized) {
+                startGame();
+            }
+        });
+    }
     
     // Expose necessary functions to window object if needed
     window.startGame = startGame;
