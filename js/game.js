@@ -23,23 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let lives = 5; // Starting lives
     let hatInitialized = false;
     let highScore = localStorage.getItem('bipptyBopHighScore') || 0; // Get high score from localStorage
-    
-    // Difficulty parameters
-    const difficultySettings = {
-        initialAppearanceTime: { min: 1000, max: 2500 },
-        minAppearanceTime: { min: 400, max: 800 },
-        appearanceTimeDecreasePerPoint: 5, // ms decrease per point
-        minTeaseTime: 300, // minimum tease appearance duration (ms)
-        minFullTime: 400,  // minimum full appearance duration (ms)
-        
-        // Speed at which tease/full appearance times decrease
-        teaseTimeDecreaseRate: 3,  // ms per point
-        fullTimeDecreaseRate: 4,   // ms per point
-        
-        // Initial appearance durations
-        initialTeaseTime: 600,
-        initialFullTime: 800
-    };
 
     // Display initial high score
     updateHighScoreDisplay();
@@ -440,17 +423,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function scheduleNextMouse() {
         if (!gameActive) return;
         
-        // Calculate current appearance time range based on score
-        const decreaseFactor = Math.min(score * difficultySettings.appearanceTimeDecreasePerPoint, 
-                                       difficultySettings.initialAppearanceTime.max - difficultySettings.minAppearanceTime.max);
-        
-        const minTime = Math.max(difficultySettings.initialAppearanceTime.min - decreaseFactor, 
-                               difficultySettings.minAppearanceTime.min);
-        const maxTime = Math.max(difficultySettings.initialAppearanceTime.max - decreaseFactor, 
-                               difficultySettings.minAppearanceTime.max);
-        
-        // Random timing between calculated min and max
-        const nextAppearance = minTime + Math.random() * (maxTime - minTime);
+        // Random timing between 1000ms and 2500ms
+        const nextAppearance = 1000 + Math.random() * 1500;
         gameInterval = setTimeout(showMouse, nextAppearance);
     }
 
@@ -552,121 +526,106 @@ document.addEventListener('DOMContentLoaded', function() {
             mouseContainer.appendChild(mouse);
             
             // Ensure mouse is positioned correctly and fully opaque
-            mouse.style.left = '50%'; score thresholds
+            mouse.style.left = '50%';
             mouse.style.transform = 'translateX(-50%)';
-            mouse.style.top = '40px';dUpMessage();
+            mouse.style.top = '40px';
             mouse.style.opacity = '1';
             
-            // Ensure the mouse can be clickedpoints
-            mouse.style.pointerEvents = 'auto';f (score % 30 === 0) {
-            mouse.style.cursor = 'url(assets/images/wand-cursor.png), pointer';    lives++;
+            // Ensure the mouse can be clicked
+            mouse.style.pointerEvents = 'auto';
+            mouse.style.cursor = 'url(assets/images/wand-cursor.png), pointer';
             
             // Mark container as active for styling
             mouseContainer.classList.add('mouse-pop-active');
             
             mouse.addEventListener('click', (event) => {
-                // Check if mouse is already stunned to prevent multiple clicksr duration
-                if (mouse.classList.contains('stun-animation')) {'tease-appearance');
-                    return;  // Exit early if already stunnedmouse.classList.remove('full-appearance');
+                // Check if mouse is already stunned to prevent multiple clicks
+                if (mouse.classList.contains('stun-animation')) {
+                    return;  // Exit early if already stunned
                 }
                 
-                // Play hit sound (swapped - now the thud sound)ead
+                // Play hit sound (swapped - now the thud sound)
                 window.gameAudio.playHitSound();
                 score++;
-                scoreDisplay.textContent = `Score: ${score}`;for longer stun animation to finish before removing
+                scoreDisplay.textContent = `Score: ${score}`;
                 
-                // Check if this is a new high scoreins(mouse)) {
-                checkHighScore();   mouseContainer.removeChild(mouse);
-                );
-                // Award extra life every 30 points         
-                if (score % 30 === 0) {                        // Schedule next appearance after mouse disappears
+                // Check if this is a new high score
+                checkHighScore();
+                
+                // Award extra life every 30 points
+                if (score % 30 === 0) {
                     lives++;
                     updateLivesDisplay();
-                    // Show 1UP messagencreased stun duration from 1000ms to 1500ms
+                    // Show 1UP message
                     showOneUpMessage(topHat);
                 }
                 
-                // Apply stun animation when clicked - longer durationpearanceDuration = isTeaseAppearance ? 600 : 800;
+                // Apply stun animation when clicked - longer duration
                 mouse.classList.remove('tease-appearance');
-                mouse.classList.remove('full-appearance');st.contains('stun-animation')) {
+                mouse.classList.remove('full-appearance');
                 mouse.classList.add('stun-animation');
                 
                 // Create swirling stars around mouse's head
-                createStunStars(mouse);// Create cartoon puff cloud effect when mouse disappears
+                createStunStars(mouse);
                 
-                // Wait for longer stun animation to finish before removing.left + mouseRect.width / 2;
-                setTimeout(() => {Y = mouseRect.top + mouseRect.height / 2;
-                    if (mouseContainer.contains(mouse)) {, centerY);
+                // Wait for longer stun animation to finish before removing
+                setTimeout(() => {
+                    if (mouseContainer.contains(mouse)) {
                         mouseContainer.removeChild(mouse);
-                        mouseContainer.classList.remove('mouse-pop-active');ull appearances, not teases
-                        e) {
+                        mouseContainer.classList.remove('mouse-pop-active');
+                        
                         // Schedule next appearance after mouse disappears
                         scheduleNextMouse();
                     }
-                }, 1500); // Increased stun duration from 1000ms to 1500ms game over
-            });f (lives <= 0) {
-       mouseContainer.removeChild(mouse);
-            // Set timeout based on appearance type and current score        mouseContainer.classList.remove('mouse-pop-active');
-            let appearanceDuration;
-            
-            if (isTeaseAppearance) {    }
-                // Calculate tease duration based on score
-                appearanceDuration = Math.max(
-                    difficultySettings.initialTeaseTime - (score * difficultySettings.teaseTimeDecreaseRate),   mouseContainer.removeChild(mouse);
-                    difficultySettings.minTeaseTimeclassList.remove('mouse-pop-active');
-                );          
-            } else {            // Schedule next appearance after mouse disappears
-                // Calculate full appearance duration based on scoreMouse();
-                appearanceDuration = Math.max(
-                    difficultySettings.initialFullTime - (score * difficultySettings.fullTimeDecreaseRate),ation);
-                    difficultySettings.minFullTime
-                );
-            }
-            
+                }, 1500); // Increased stun duration from 1000ms to 1500ms
+            });
+
+            // Set timeout based on appearance type
+            const appearanceDuration = isTeaseAppearance ? 600 : 800;
             setTimeout(() => {
                 if (mouseContainer.contains(mouse) && !mouse.classList.contains('stun-animation')) {
-                    // Play miss sound (swapped - now the ping sound)First create a magical star swirl animation and sound for full appearances
-                    window.gameAudio.playMissSound();   createMagicalSwirl(lastHatPosition, topHat).then(() => {
-                               // Set this hat as the last hat position for next animation
-                    // Create cartoon puff cloud effect when mouse disappears            lastHatPosition = topHat;
+                    // Play miss sound (swapped - now the ping sound)
+                    window.gameAudio.playMissSound();
+                    
+                    // Create cartoon puff cloud effect when mouse disappears
                     const mouseRect = mouse.getBoundingClientRect();
                     const centerX = mouseRect.left + mouseRect.width / 2;
                     const centerY = mouseRect.top + mouseRect.height / 2;
                     createCartoonPuff(centerX, centerY);
                     
-                    // Only lose a life for full appearances, not teasesunction to show 1UP message
+                    // Only lose a life for full appearances, not teases
                     if (!isTeaseAppearance) {
-                        lives--;);
+                        lives--;
                         updateLivesDisplay();
-                        oneUpMessage.textContent = '1UP!';
+                        
                         // Check if game over
                         if (lives <= 0) {
-                            mouseContainer.removeChild(mouse);const rect = nearElement.getBoundingClientRect();
-                            mouseContainer.classList.remove('mouse-pop-active');etBoundingClientRect();
+                            mouseContainer.removeChild(mouse);
+                            mouseContainer.classList.remove('mouse-pop-active');
                             endGame();
-                            return;oneUpMessage.style.left = `${rect.left + rect.width/2 - gameAreaRect.left}px`;
-                        }p - 20 - gameAreaRect.top}px`;
+                            return;
+                        }
                     }
                     
                     mouseContainer.removeChild(mouse);
                     mouseContainer.classList.remove('mouse-pop-active');
-                     after animation completes
-                    // Schedule next appearance after mouse disappears   setTimeout(() => {
-                    scheduleNextMouse();            if (gameArea.contains(oneUpMessage)) {
+                    
+                    // Schedule next appearance after mouse disappears
+                    scheduleNextMouse();
                 }
             }, appearanceDuration);
         };
         
         if (isTeaseAppearance) {
-            // Skip the swirl animation for tease appearancesion to show speed up message when difficulty increases
+            // Skip the swirl animation for tease appearances
             showWithSwirl();
         } else {
             // First create a magical star swirl animation and sound for full appearances
-            createMagicalSwirl(lastHatPosition, topHat).then(() => {dUpMessage.textContent = 'Speed Up!';
+            createMagicalSwirl(lastHatPosition, topHat).then(() => {
                 // Set this hat as the last hat position for next animation
                 lastHatPosition = topHat;
                 showWithSwirl();
-            });dUpMessage.style.top = '60px';
+            });
         }
     }
     
@@ -674,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function showOneUpMessage(nearElement) {
         const oneUpMessage = document.createElement('div');
         oneUpMessage.className = 'one-up-message';
-        oneUpMessage.textContent = '1UP!';    gameArea.removeChild(speedUpMessage);
+        oneUpMessage.textContent = '1UP!';
         
         // Position message near the element
         const rect = nearElement.getBoundingClientRect();
@@ -682,270 +641,244 @@ document.addEventListener('DOMContentLoaded', function() {
         
         oneUpMessage.style.left = `${rect.left + rect.width/2 - gameAreaRect.left}px`;
         oneUpMessage.style.top = `${rect.top - 20 - gameAreaRect.top}px`;
-        star swirl sound
+        
         // Add to game area and animate
         gameArea.appendChild(oneUpMessage);
-        container
-        // Remove after animation completes document.createElement('div');
+        
+        // Remove after animation completes
         setTimeout(() => {
             if (gameArea.contains(oneUpMessage)) {
-                gameArea.removeChild(oneUpMessage);position
-            }tHat.getBoundingClientRect();
+                gameArea.removeChild(oneUpMessage);
+            }
         }, 1000);
     }
-t position relative to game area
-    // Function to create a magical star swirl effect between hatst.left + targetRect.width/2 - gameAreaRect.left;
-    function createMagicalSwirl(sourceHat, targetHat) {op;
+
+    // Function to create a magical star swirl effect between hats
+    function createMagicalSwirl(sourceHat, targetHat) {
         return new Promise((resolve) => {
-            // Play star swirl soundiner position at target
-            window.gameAudio.playStarSwirlSound();ft = `${targetX}px`;
-            }px`;
-            // Create a swirl container
-            const swirlContainer = document.createElement('div');tion (or use random position for first appearance)
-            swirlContainer.className = 'swirl-container';ourceX, sourceY;
+            // Play star swirl sound
+            window.gameAudio.playStarSwirlSound();
             
-            // Get target hat positionif (sourceHat) {
-            const targetRect = targetHat.getBoundingClientRect();undingClientRect();
-            const gameAreaRect = gameArea.getBoundingClientRect();+ sourceRect.width/2 - gameAreaRect.left - targetX;
-            t/2 - gameAreaRect.top - targetY;
+            // Create a swirl container
+            const swirlContainer = document.createElement('div');
+            swirlContainer.className = 'swirl-container';
+            
+            // Get target hat position
+            const targetRect = targetHat.getBoundingClientRect();
+            const gameAreaRect = gameArea.getBoundingClientRect();
+            
             // Calculate target position relative to game area
-            const targetX = targetRect.left + targetRect.width/2 - gameAreaRect.left;// First appearance - come from a random edge
-            const targetY = targetRect.top + targetRect.height/2 - gameAreaRect.top;th.random() * 4);
+            const targetX = targetRect.left + targetRect.width/2 - gameAreaRect.left;
+            const targetY = targetRect.top + targetRect.height/2 - gameAreaRect.top;
             
             // Set swirl container position at target
-            swirlContainer.style.left = `${targetX}px`;* gameArea.offsetWidth - targetX;
-            swirlContainer.style.top = `${targetY}px`;        sourceY = -100 - targetY;
+            swirlContainer.style.left = `${targetX}px`;
+            swirlContainer.style.top = `${targetY}px`;
             
             // Get source position (or use random position for first appearance)
-            let sourceX, sourceY;        sourceX = gameArea.offsetWidth + 100 - targetX;
-            ght - targetY;
+            let sourceX, sourceY;
+            
             if (sourceHat) {
                 const sourceRect = sourceHat.getBoundingClientRect();
-                sourceX = sourceRect.left + sourceRect.width/2 - gameAreaRect.left - targetX;a.offsetWidth - targetX;
-                sourceY = sourceRect.top + sourceRect.height/2 - gameAreaRect.top - targetY; 100 - targetY;
-            } else {        break;
+                sourceX = sourceRect.left + sourceRect.width/2 - gameAreaRect.left - targetX;
+                sourceY = sourceRect.top + sourceRect.height/2 - gameAreaRect.top - targetY;
+            } else {
                 // First appearance - come from a random edge
                 const edge = Math.floor(Math.random() * 4);
-                switch(edge) {           sourceY = Math.random() * gameArea.offsetHeight - targetY;
-                    case 0: // top            break;
+                switch(edge) {
+                    case 0: // top
                         sourceX = Math.random() * gameArea.offsetWidth - targetX;
                         sourceY = -100 - targetY;
                         break;
                     case 1: // right
-                        sourceX = gameArea.offsetWidth + 100 - targetX;< 12; i++) {
-                        sourceY = Math.random() * gameArea.offsetHeight - targetY;div');
-                        break;Name = 'swirl-star';
+                        sourceX = gameArea.offsetWidth + 100 - targetX;
+                        sourceY = Math.random() * gameArea.offsetHeight - targetY;
+                        break;
                     case 2: // bottom
-                        sourceX = Math.random() * gameArea.offsetWidth - targetX;     // Random size for variety
-                        sourceY = gameArea.offsetHeight + 100 - targetY;           const size = 4 + Math.random() * 8;
-                        break;                star.style.width = `${size}px`;
+                        sourceX = Math.random() * gameArea.offsetWidth - targetX;
+                        sourceY = gameArea.offsetHeight + 100 - targetY;
+                        break;
                     case 3: // left
                         sourceX = -100 - targetX;
                         sourceY = Math.random() * gameArea.offsetHeight - targetY;
                         break;
                 }
-            }positions
-                   star.style.setProperty('--start-x', `${sourceX}px`);
-            // Create multiple stars for the swirl        star.style.setProperty('--start-y', `${sourceY}px`);
+            }
+            
+            // Create multiple stars for the swirl
             for (let i = 0; i < 12; i++) {
                 const star = document.createElement('div');
-                star.className = 'swirl-star';        
-                container
-                // Random size for varietyr.appendChild(star);
+                star.className = 'swirl-star';
+                
+                // Random size for variety
                 const size = 4 + Math.random() * 8;
                 star.style.width = `${size}px`;
-                star.style.height = `${size}px`;area
-                gameArea.appendChild(swirlContainer);
+                star.style.height = `${size}px`;
+                
                 // Random delay for each star in the swirl
-                star.style.animationDelay = `${i * 0.05}s`;tes
+                star.style.animationDelay = `${i * 0.05}s`;
                 
                 // Set custom properties for start and end positions
                 star.style.setProperty('--start-x', `${sourceX}px`);
-                star.style.setProperty('--start-y', `${sourceY}px`);}, 600);
+                star.style.setProperty('--start-y', `${sourceY}px`);
                 star.style.setProperty('--end-x', '0px');
                 star.style.setProperty('--end-y', '0px');
                 
-                // Add the star to the swirl containeraround stunned mouse's head
+                // Add the star to the swirl container
                 swirlContainer.appendChild(star);
-            }irst, remove any existing stun stars to prevent duplicates
-            ment.querySelector('.stun-stars-container');
-            // Add the swirl to the game areaf (existingStars) {
-            gameArea.appendChild(swirlContainer);    mouse.parentElement.removeChild(existingStars);
+            }
+            
+            // Add the swirl to the game area
+            gameArea.appendChild(swirlContainer);
             
             // Resolve the promise after animation completes
-            setTimeout(() => {const starsContainer = document.createElement('div');
-                gameArea.removeChild(swirlContainer);ars-container';
+            setTimeout(() => {
+                gameArea.removeChild(swirlContainer);
                 resolve();
             }, 600);
         });
-    }let i = 0; i < totalStars; i++) {
- star = document.createElement('div');
-    // Function to create swirling stars around stunned mouse's head       star.className = 'stun-star';
-    function createStunStars(mouse) {        
+    }
+
+    // Function to create swirling stars around stunned mouse's head
+    function createStunStars(mouse) {
         // First, remove any existing stun stars to prevent duplicates
-        const existingStars = mouse.parentElement.querySelector('.stun-stars-container');PI * 2;
-        if (existingStars) {nter
-            mouse.parentElement.removeChild(existingStars);40 is half of container width, 6 is half of star
-        }// Same for height
-            
+        const existingStars = mouse.parentElement.querySelector('.stun-stars-container');
+        if (existingStars) {
+            mouse.parentElement.removeChild(existingStars);
+        }
+        
         const starsContainer = document.createElement('div');
         starsContainer.className = 'stun-stars-container';
         
         // Create 5 stars at different angles
-        const totalStars = 5;    star.style.animationDelay = `${i * 0.1}s`;
+        const totalStars = 5;
         for (let i = 0; i < totalStars; i++) {
             const star = document.createElement('div');
             star.className = 'stun-star';
             
-            // Position stars in a circle// Append the stars to the mouse's parent container
+            // Position stars in a circle
             const angle = (i / totalStars) * Math.PI * 2;
             const radius = 25; // Distance from center
             const x = Math.cos(angle) * radius + 40 - 6; // 40 is half of container width, 6 is half of star
             const y = Math.sin(angle) * radius + 40 - 6; // Same for height
-            arentElement.contains(starsContainer)) {
-            star.style.left = `${x}px`;    mouse.parentElement.removeChild(starsContainer);
+            
+            star.style.left = `${x}px`;
             star.style.top = `${y}px`;
             
             // Add random animation delay
             star.style.animationDelay = `${i * 0.1}s`;
-            mouse disappears
-            starsContainer.appendChild(star); createCartoonPuff(clientX, clientY) {
-        }oon puff
-        ent('div');
-        // Append the stars to the mouse's parent container-container';
+            
+            starsContainer.appendChild(star);
+        }
+        
+        // Append the stars to the mouse's parent container
         mouse.parentElement.appendChild(starsContainer);
-        osition the container at the location
-        // Remove after animation completesrea.getBoundingClientRect();
-        setTimeout(() => {Rect.left}px`;
-            if (mouse.parentElement && mouse.parentElement.contains(starsContainer)) {Rect.top}px`;
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (mouse.parentElement && mouse.parentElement.contains(starsContainer)) {
                 mouse.parentElement.removeChild(starsContainer);
             }
         }, 1500);
-    }Puff.className = 'cartoon-puff';
+    }
     
     // Function to create a cartoon puff cloud when mouse disappears
-    function createCartoonPuff(clientX, clientY) {// Create smaller cloud bubbles around the main puff
+    function createCartoonPuff(clientX, clientY) {
         // Create a container for the cartoon puff
-        const puffContainer = document.createElement('div');) {
-        puffContainer.className = 'smoke-puff-container';    const bubble = document.createElement('div');
-        e';
+        const puffContainer = document.createElement('div');
+        puffContainer.className = 'smoke-puff-container';
+        
         // Position the container at the location
-        const gameAreaRect = gameArea.getBoundingClientRect();uff
-        puffContainer.style.left = `${clientX - gameAreaRect.left}px`;I * 2;
-        puffContainer.style.top = `${clientY - gameAreaRect.top}px`;onst distance = 30 + Math.random() * 15;
-        t xPos = Math.cos(angle) * distance;
-        // Create main puff       const yPos = Math.sin(angle) * distance;
-        const mainPuff = document.createElement('div');            
-        mainPuff.className = 'cartoon-puff';m size for variety
-        puffContainer.appendChild(mainPuff);andom() * 10;
-        dth = `${size}px`;
+        const gameAreaRect = gameArea.getBoundingClientRect();
+        puffContainer.style.left = `${clientX - gameAreaRect.left}px`;
+        puffContainer.style.top = `${clientY - gameAreaRect.top}px`;
+        
+        // Create main puff
+        const mainPuff = document.createElement('div');
+        mainPuff.className = 'cartoon-puff';
+        puffContainer.appendChild(mainPuff);
+        
         // Create smaller cloud bubbles around the main puff
-        const bubbleCount = 5;    
+        const bubbleCount = 5;
         for (let i = 0; i < bubbleCount; i++) {
-            const bubble = document.createElement('div');os}px)`;
-            bubble.className = 'cloud-bubble';    bubble.style.top = `calc(50% + ${yPos}px)`;
+            const bubble = document.createElement('div');
+            bubble.className = 'cloud-bubble';
             
             // Calculate position around the main puff
-            const angle = (i / bubbleCount) * Math.PI * 2; * 0.05}s`;
-            const distance = 30 + Math.random() * 15;    
+            const angle = (i / bubbleCount) * Math.PI * 2;
+            const distance = 30 + Math.random() * 15;
             const xPos = Math.cos(angle) * distance;
             const yPos = Math.sin(angle) * distance;
             
             // Set random size for variety
-            const size = 15 + Math.random() * 10;ameArea.appendChild(puffContainer);
+            const size = 15 + Math.random() * 10;
             bubble.style.width = `${size}px`;
-            bubble.style.height = `${size}px`; completes
+            bubble.style.height = `${size}px`;
             
-            // Position the bubbleontainer)) {
-            bubble.style.left = `calc(50% + ${xPos}px)`;Child(puffContainer);
+            // Position the bubble
+            bubble.style.left = `calc(50% + ${xPos}px)`;
             bubble.style.top = `calc(50% + ${yPos}px)`;
             
             // Random delay for bubble appearance
             bubble.style.animationDelay = `${0.1 + i * 0.05}s`;
             
             puffContainer.appendChild(bubble);
-        }gameActive = false;
+        }
         
         // Add the puff to the game area
-        gameArea.appendChild(puffContainer);er message
-        );
+        gameArea.appendChild(puffContainer);
+        
         // Remove after animation completes
-        setTimeout(() => {Create game over message instead of alert
-            if (gameArea.contains(puffContainer)) {   const gameOverMsg = document.createElement('div');
-                gameArea.removeChild(puffContainer);        gameOverMsg.className = 'game-over-message';
+        setTimeout(() => {
+            if (gameArea.contains(puffContainer)) {
+                gameArea.removeChild(puffContainer);
             }
-        }, 700);core message if it's a new high score
-    }        let highScoreMessage = '';
+        }, 700);
+    }
 
-    function endGame() {igh Score!</p>';
+    function endGame() {
         clearTimeout(gameInterval); 
         gameActive = false;
-        window.gameAudio.stopBackgroundMusic();gameOverMsg.innerHTML = `
+        window.gameAudio.stopBackgroundMusic();
         
-        // Check for high score before showing game over messagescore}</p>
+        // Check for high score before showing game over message
         const isNewHighScore = checkHighScore();
         
-        // Create game over message instead of alertin-btn">Play Again</button>
+        // Create game over message instead of alert
         const gameOverMsg = document.createElement('div');
         gameOverMsg.className = 'game-over-message';
         
-        // Include high score message if it's a new high score);
+        // Include high score message if it's a new high score
         let highScoreMessage = '';
-        if (isNewHighScore) {utton
-            highScoreMessage = '<p class="new-high-score">New High Score!</p>';Msg.querySelector('.play-again-btn');
-        }lick', () => {
+        if (isNewHighScore) {
+            highScoreMessage = '<p class="new-high-score">New High Score!</p>';
+        }
         
         gameOverMsg.innerHTML = `
             <h2>Game Over!</h2>
             <p>Your score: ${score}</p>
             ${highScoreMessage}
-            <p>High score: ${highScore}</p>// Initialize game area once DOM is loaded
+            <p>High score: ${highScore}</p>
             <button class="play-again-btn">Play Again</button>
         `;
-        rom controls area (not the one on the playfield)
-        // Add to game area const startButton = document.getElementById('startButton');
+        
+        // Add to game area
+        gameArea.appendChild(gameOverMsg);
+        
+        // Add event listener to play again button
+        const playAgainBtn = gameOverMsg.querySelector('.play-again-btn');
+        playAgainBtn.addEventListener('click', () => {
+            gameArea.removeChild(gameOverMsg);
+            startGame();
+        });
+    }
 
+    // Initialize game area once DOM is loaded
+    initializeGameArea();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-});    window.endGame = endGame;    window.startGame = startGame;    // Expose necessary functions to window object if needed        }        });            }                startGame();                // Normal start if hats are initialized but game isn't active            } else if (hatInitialized) {                initializeGameArea();                // Reinitialize the game area                                gameArea.innerHTML = '';                // Clear all existing hats                                window.gameAudio.stopBackgroundMusic();                gameActive = false;                clearTimeout(gameInterval);                // If game is active, this is a restart            if (gameActive) {        startButton.addEventListener('click', () => {                startButton.disabled = true; // Disable until hats are ready    if (startButton) {    const startButton = document.getElementById('startButton');    // Get the start button from controls area (not the one on the playfield)    initializeGameArea();    // Initialize game area once DOM is loaded    }        });            startGame();            gameArea.removeChild(gameOverMsg);        playAgainBtn.addEventListener('click', () => {        const playAgainBtn = gameOverMsg.querySelector('.play-again-btn');        // Add event listener to play again button                gameArea.appendChild(gameOverMsg);    if (startButton) {
+    // Get the start button from controls area (not the one on the playfield)
+    const startButton = document.getElementById('startButton');
+    if (startButton) {
         startButton.disabled = true; // Disable until hats are ready
         
         startButton.addEventListener('click', () => {

@@ -517,37 +517,6 @@ h1 {
     }
 }
 
-/* Speed Up message animation */
-.speed-up-message {
-    position: absolute;
-    color: #FF6B6B;
-    font-size: 32px;
-    font-weight: bold;
-    text-shadow: 0 0 5px white, 0 0 10px red;
-    pointer-events: none;
-    animation: speedUpFloat 1s ease-out forwards;
-    z-index: 100;
-    transform: translateX(-50%);
-}
-
-@keyframes speedUpFloat {
-    0% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(0) scale(0.5);
-    }
-    20% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0) scale(1.2);
-    }
-    50% {
-        transform: translateX(-50%) translateY(-10px) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-40px) scale(0.7);
-    }
-}
-
 /* Swirl container styling */
 .swirl-container {
     position: absolute;
